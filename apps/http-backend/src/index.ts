@@ -5,24 +5,51 @@ import { middleware } from "./middleware";
 import {Request, Response} from "express";
 import {createUserSchema} from "@repo/common/types"
 const app = express() ;
+import {prismaclient} from "@repo/db/client"
 
 app.use(express.json()) ;
+app.get("/signup",(req,res)=>{
+    console.log("hello") ;
+    res.json({
+        "message":"hello"
+    })
+})
 
 
- app.get("/signup",(req,res)=>{
-    const data = createUserSchema.safeParse(req.body) ;
-    if(!data.success){
+ app.post("/signup",async(req,res)=>{
+
+    const parsedData = createUserSchema.safeParse(req.body) ;
+    if(!parsedData.success){
+        console.log(parsedData) ;
         res.json({
             message:"wrong input , zod error"
         })
-
         return ;
     }
 
+    try {
+         const user = await prismaclient.user.create({
 
-    
+            data:{
+                    email:  parsedData.data.username,
+                    password: parsedData.data.password,
+                    name:   parsedData.data.name
+                }
+            })
+            res.json({
+                message: user.id
+            })
+            
+        } catch (error) {
+            res.status(411).json({
+                message:"User Exist already."
+            })
+        }   
  })
- app.get("/signin",(req,res)=>{
+
+
+
+ app.post("/signin",(req,res)=>{
     const {username,password} = req.body ;
 
     const userId = 1 ;
@@ -53,4 +80,5 @@ app.use(express.json()) ;
 
 
  })
-app.listen(3001) ;
+ app.listen(3001)
+

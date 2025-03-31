@@ -20,6 +20,9 @@ importers:
 
   apps/http-backend:
     dependencies:
+      '@repo/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       express:
         specifier: ^4.21.2
         version: 4.21.2
@@ -30,9 +33,9 @@ importers:
       '@repo/backend-common':
         specifier: workspace:*
         version: link:../../packages/backend-common
-      '@repo/common':
+      '@repo/db':
         specifier: workspace:*
-        version: link:../../packages/common
+        version: link:../../packages/db
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config

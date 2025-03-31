@@ -2,22 +2,28 @@
   "name": "http-backend",
   "version": "1.0.0",
   "main": "index.js",
+
+  
   "scripts": {
     "build": "tsc -b",
-    "dev": "npm run build && npm run dev",
-    "start": "node ./dist/index.js"
+   
+    "start": "node dist/index.js",
+    "dev": "npm run build && npm run start"
   },
   "dependencies": {
   
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "@repo/common":"workspace:*",
+    "@repo/db":"workspace:*"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
-    "@repo/backend-common":"workspace:*",
-    "@repo/common":"workspace:*"
+    "@repo/backend-common":"workspace:*"
+    
+    
   },
   "keywords": [],
   "author": "",
