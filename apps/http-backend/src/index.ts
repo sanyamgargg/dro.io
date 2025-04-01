@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken" ;
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { middleware } from "./middleware";
 import {Request, Response} from "express";
-import {createUserSchema} from "@repo/common/types"
+import {createUserSchema, roomSchema, signInSchema} from "@repo/common/types"
 const app = express() ;
 import {prismaclient} from "@repo/db/client"
 
@@ -32,6 +32,7 @@ app.get("/signup",(req,res)=>{
 
             data:{
                     email:  parsedData.data.username,
+                    //using bcrypt to hash the password
                     password: parsedData.data.password,
                     name:   parsedData.data.name
                 }
@@ -49,36 +50,73 @@ app.get("/signup",(req,res)=>{
 
 
 
- app.post("/signin",(req,res)=>{
-    const {username,password} = req.body ;
+ app.post("/signin", async(req,res)=>{
+    const parsedData = signInSchema.safeParse(req.body) ;
 
-    const userId = 1 ;
-    if(userId){
-        const token = jwt.sign({
-            userId
-        },JWT_SECRET)
-
+    if(!parsedData.success) {
         res.json({
-            token: token 
-        })
-    }else{
-        res.json({
-            message: "user doesnt exist."
+            message:"Incorrect Inputs."
         })
     }
 
+    const user = await prismaclient.user.findFirst({
+        data:{
+            email: parsedData.data?.username,
+            password: parsedData.data?.password
 
+        }
+    })
 
+    
+    if(!user){
+        res.json({
+            message: "Authentication failed."
+        })
+    
+    }
 
- })
- app.post("/room", middleware, (req:Request,res:Response)=>{
-    //db call
+    const token = jwt.sign({
+        userId: user.id
+    },JWT_SECRET)
+
     res.json({
-        roomid: 123
+        token: token 
+    })
+ })
+
+ app.post("/room", middleware,async (req:Request,res:Response)=>{
+    //db call
+    const parsedData = roomSchema.safeParse(req.body) ;
+
+    if(!parsedData.success){
+        res.json({
+            message: "Error in room creation."
+        })
+    }
+    //@ts-ignore
+    const userId = req.userId ;
+
+   try {
+    const newRoom = await prismaclient.room.create({
+        data : {
+            slug: parsedData.data?.name,
+            adminId: userId
+
+        }
     })
     
-
-
+    if(newRoom){
+        res.json({
+            roomId : newRoom.id
+        })
+    }
+   } catch (error) {
+        console.log(error) ;
+   } 
+       
  })
+
+
+
  app.listen(3001)
 
