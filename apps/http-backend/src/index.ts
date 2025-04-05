@@ -8,12 +8,7 @@ const app = express() ;
 import {prismaclient} from "@repo/db/client"
 
 app.use(express.json()) ;
-app.get("/signup",(req,res)=>{
-    console.log("hello") ;
-    res.json({
-        "message":"hello"
-    })
-})
+
 
 
  app.post("/signup",async(req,res)=>{
@@ -22,7 +17,7 @@ app.get("/signup",(req,res)=>{
     if(!parsedData.success){
         console.log(parsedData) ;
         res.json({
-            message:"wrong input , zod error"
+            message:parsedData
         })
         return ;
     }
@@ -57,10 +52,11 @@ app.get("/signup",(req,res)=>{
         res.json({
             message:"Incorrect Inputs."
         })
+        return ;
     }
 
     const user = await prismaclient.user.findFirst({
-        data:{
+        where:{
             email: parsedData.data?.username,
             password: parsedData.data?.password
 
@@ -72,6 +68,7 @@ app.get("/signup",(req,res)=>{
         res.json({
             message: "Authentication failed."
         })
+        return ;
     
     }
 
@@ -80,9 +77,10 @@ app.get("/signup",(req,res)=>{
     },JWT_SECRET)
 
     res.json({
-        token: token 
+        token 
     })
  })
+
 
  app.post("/room", middleware,async (req:Request,res:Response)=>{
     //db call
@@ -92,6 +90,7 @@ app.get("/signup",(req,res)=>{
         res.json({
             message: "Error in room creation."
         })
+        return ;
     }
     //@ts-ignore
     const userId = req.userId ;
@@ -115,6 +114,24 @@ app.get("/signup",(req,res)=>{
    } 
        
  })
+
+ app.get("/chats/:roomId",async (req:Request,res:Response)=>{
+    const roomId = Number(req.params.roomId) ;
+
+    const message = await prismaclient.chat.findMany({
+        where:{
+            roomId:roomId
+        },
+        orderBy:{
+            id:"desc"
+        },
+        take : 50
+    })
+    res.json({
+        message:message
+      })
+ })
+
 
 
 

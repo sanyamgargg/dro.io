@@ -4,14 +4,16 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -b",
-    "dev": "npm run build && npm run dev",
+    "dev": "npm run build && npm run start",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
    
     "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "@repo/db":"workspace:*"
   },
+
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/jsonwebtoken": "^9.0.9",
